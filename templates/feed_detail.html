@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ feed.name }} - Feed Management - Site2RSS</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <a href="/" class="nav-back">
+            ← Back to Dashboard
+        </a>
+
+        <!-- Header -->
+        <header class="header">
+            <h1>⚙️ {{ feed.name }}</h1>
+            <p class="subtitle">Configure and manage your RSS feed</p>
+        </header>
+
+        <!-- Feed Info Card -->
+        <div class="card">
+            <h2>📊 Feed Information</h2>
+            <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div>
+                    <h4 style="color: var(--accent-primary); margin-bottom: 0.5rem;">🌐 Source Website</h4>
+                    <a href="{{ feed.url }}" target="_blank" style="word-break: break-all;">{{ feed.url }}</a>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent-primary); margin-bottom: 0.5rem;">📡 RSS Feed URL</h4>
+                    <div class="input-group">
+                        <input type="text" class="form-input" value="{{ request.url_root }}feeds/{{ feed.id }}.xml" readonly style="font-family: monospace; font-size: 0.875rem;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="copyToClipboard('{{ request.url_root }}feeds/{{ feed.id }}.xml')">
+                            📋 Copy
+                        </button>
+                        <a href="/feeds/{{ feed.id }}.xml" target="_blank" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3);">
+                            View RSS
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Mapping Card -->
+        <div class="card">
+            <h2>📝 Content Mapping Configuration</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Fine-tune how content is extracted from the website. Changes take effect immediately.
+            </p>
+            
+            <table class="form-table">
+                <thead>
+                    <tr>
+                        <th>Content Field</th>
+                        <th>CSS Selector</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Item Selector</strong>
+                            <br><small style="color: var(--text-muted);">Identifies each feed item</small>
+                        </td>
+                        <td>
+                            <input type="text" id="item_selector" class="form-input" value="{{ feed.item_selector }}" placeholder=".article, .post">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="item_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Title Selector</strong>
+                            <br><small style="color: var(--text-muted);">Extracts article titles</small>
+                        </td>
+                        <td>
+                            <input type="text" id="title_selector" class="form-input" value="{{ feed.title_selector or '' }}" placeholder="h1, h2, .title">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="title_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Link Selector</strong>
+                            <br><small style="color: var(--text-muted);">Finds article links</small>
+                        </td>
+                        <td>
+                            <input type="text" id="link_selector" class="form-input" value="{{ feed.link_selector or '' }}" placeholder="a, .link">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="link_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Content Selector</strong>
+                            <br><small style="color: var(--text-muted);">Extracts article content</small>
+                        </td>
+                        <td>
+                            <input type="text" id="content_selector" class="form-input" value="{{ feed.content_selector or '' }}" placeholder="p, .content, .excerpt">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="content_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Date Selector</strong>
+                            <br><small style="color: var(--text-muted);">Finds publication dates (optional)</small>
+                        </td>
+                        <td>
+                            <input type="text" id="date_selector" class="form-input" value="{{ feed.date_selector or '' }}" placeholder=".date, time">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="date_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Author Selector</strong>
+                            <br><small style="color: var(--text-muted);">Finds article authors (optional)</small>
+                        </td>
+                        <td>
+                            <input type="text" id="author_selector" class="form-input" value="{{ feed.author_selector or '' }}" placeholder=".author, .by">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="author_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Image Selector</strong>
+                            <br><small style="color: var(--text-muted);">Finds article images (optional)</small>
+                        </td>
+                        <td>
+                            <input type="text" id="image_selector" class="form-input" value="{{ feed.image_selector or '' }}" placeholder=".image">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm pick-btn" data-field="image_selector">
+                                🎯 Pick
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="flex gap-2 mt-3">
+                <button type="button" id="preview-btn" class="btn btn-secondary">
+                    👁️ Preview Content
+                </button>
+                <button type="button" id="save-btn" class="btn btn-success">
+                    💾 Save Changes
+                </button>
+                <button type="button" id="delete-btn" class="btn btn-danger">
+                    🗑️ Delete Feed
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="preview-section" class="card hidden">
+            <h2>📋 Content Preview</h2>
+            <p style="color: var(--text-secondary);">Here's what your RSS feed currently looks like:</p>
+            
+            <!-- Tab Navigation -->
+            <div class="preview-tabs" style="margin-bottom: 1.5rem;">
+                <button type="button" class="preview-tab active" data-tab="items">
+                    📄 Feed Items
+                </button>
+                <button type="button" class="preview-tab" data-tab="xml">
+                    🔧 RSS XML
+                </button>
+            </div>
+            
+            <!-- Content Items Tab -->
+            <div id="preview-items" class="preview-content">
+                <ul id="preview-list" class="preview-list"></ul>
+            </div>
+            
+            <!-- RSS XML Tab -->
+            <div id="preview-xml" class="preview-content hidden">
+                <div style="background: var(--bg-tertiary); border-radius: var(--border-radius); padding: 1rem; margin-bottom: 1rem;">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 style="margin: 0; color: var(--text-primary);">RSS Feed XML</h4>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="copyRSSXML()">
+                            📋 Copy XML
+                        </button>
+                    </div>
+                    <pre id="rss-xml-content" style="background: var(--bg-primary); padding: 1rem; border-radius: var(--border-radius); overflow-x: auto; font-size: 0.875rem; line-height: 1.4; color: var(--text-secondary); max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+                <div class="flex gap-2">
+                    <a href="/feeds/{{ feed.id }}.xml" target="_blank" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3);">
+                        View RSS
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card tips-section">
+            <h3 style="color: var(--text-muted); font-size: 1.25rem;">💡 Configuration Tips</h3>
+            <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                <div>
+                    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1rem;">🎯 Visual Selector</h4>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Use the "Pick" buttons to visually select elements on the website</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1rem;">🔍 Test Changes</h4>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Preview your changes before saving to ensure correct extraction</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1rem;">📡 Feed URL</h4>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Copy the RSS URL to use in your favorite feed reader</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1rem;">⚡ Auto-Update</h4>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Your feed automatically updates when the source website changes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const feedID = {{ feed.id }};
+    const siteURL = "{{ feed.url }}";
+    const fields = ['item_selector', 'title_selector', 'link_selector', 'content_selector', 'date_selector', 'author_selector', 'image_selector'];
+
+    // Initialize pick buttons
+    fields.forEach(f => {
+        const btn = document.querySelector(`[data-field="${f}"]`);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                const itemSel = document.getElementById('item_selector').value.trim();
+                const qsItem = itemSel ? '&item_sel='+encodeURIComponent(itemSel) : '';
+                window.open('/picker?url='+encodeURIComponent(siteURL)+'&field='+f+qsItem, '_blank', 'width=800,height=600');
+            });
+        }
+    });
+
+    // Initialize preview tabs
+    document.querySelectorAll('.preview-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.dataset.tab;
+            
+            // Update active tab
+            document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Show/hide content
+            document.querySelectorAll('.preview-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`preview-${targetTab}`).classList.remove('hidden');
+            
+            // Load RSS XML if switching to XML tab
+            if (targetTab === 'xml') {
+                loadRSSXML();
+            }
+        });
+    });
+
+    window.addEventListener('message', event => {
+        if (event.data && event.data.field && event.data.selector) {
+            const input = document.getElementById(event.data.field);
+            if (input) {
+                input.value = event.data.selector;
+                showAlert(`✅ ${event.data.field.replace('_', ' ')} selector updated`, 'success');
+                // auto-trigger preview
+                document.getElementById('preview-btn').click();
+            }
+        }
+    });
+
+    function getMapping() {
+        const mapping = {};
+        fields.forEach(f => {
+            mapping[f] = document.getElementById(f).value.trim();
+        });
+        return mapping;
+    }
+
+    document.getElementById('preview-btn').addEventListener('click', async () => {
+        const mapping = getMapping();
+        const btn = document.getElementById('preview-btn');
+        
+        setButtonLoading(btn, '👁️ Loading Preview...', true);
+        
+        try {
+            const resp = await fetch('/api/preview', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: siteURL, mapping: mapping})
+            });
+            const data = await resp.json();
+            
+            if (resp.ok) {
+                renderPreview(data.items);
+                const previewSection = document.getElementById('preview-section');
+                previewSection.classList.remove('hidden');
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Show alert near the preview section instead of at the top
+                showAlertNear('✅ Preview updated successfully', 'success', previewSection);
+            } else {
+                showAlert('❌ Preview failed: ' + data.error, 'error');
+            }
+        } catch (err) {
+            showAlert('❌ Network error: ' + err.message, 'error');
+        } finally {
+            setButtonLoading(btn, '👁️ Preview Content', false);
+        }
+    });
+
+    document.getElementById('save-btn').addEventListener('click', async () => {
+        const mapping = getMapping();
+        const btn = document.getElementById('save-btn');
+        
+        setButtonLoading(btn, '💾 Saving Changes...', true);
+        
+        try {
+            const resp = await fetch('/api/feeds/' + feedID, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(mapping)
+            });
+            
+            if (resp.ok) {
+                showAlert('✅ Feed configuration saved successfully!', 'success');
+            } else {
+                const data = await resp.json();
+                showAlert('❌ Save failed: ' + data.error, 'error');
+            }
+        } catch (err) {
+            showAlert('❌ Network error: ' + err.message, 'error');
+        } finally {
+            setButtonLoading(btn, '💾 Save Changes', false);
+        }
+    });
+
+    document.getElementById('delete-btn').addEventListener('click', async () => {
+        if (!confirm('⚠️ Are you sure you want to delete this feed? This action cannot be undone.')) return;
+        
+        const btn = document.getElementById('delete-btn');
+        setButtonLoading(btn, '🗑️ Deleting...', true);
+        
+        try {
+            const resp = await fetch('/api/feeds/' + feedID, {method: 'DELETE'});
+            if (resp.ok) {
+                showAlert('✅ Feed deleted successfully! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                showAlert('❌ Delete failed', 'error');
+            }
+        } catch (err) {
+            showAlert('❌ Network error: ' + err.message, 'error');
+        } finally {
+            setButtonLoading(btn, '🗑️ Delete Feed', false);
+        }
+    });
+
+    function renderPreview(items) {
+        const list = document.getElementById('preview-list');
+        list.innerHTML = '';
+        
+        if (!items || items.length === 0) {
+            list.innerHTML = '<div class="rss-empty-state"><em style="color: var(--text-muted);">No items detected. Try adjusting your selectors.</em></div>';
+            return;
+        }
+        
+        // Create RSS feed header
+        const feedHeader = document.createElement('div');
+        feedHeader.className = 'rss-feed-header';
+        feedHeader.innerHTML = `
+            <div class="rss-feed-title">
+                <h3 style="margin: 0; color: var(--accent-primary); font-size: 1.5rem;">📡 ${siteURL.replace(/^https?:\/\//, '').split('/')[0]}</h3>
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-muted); font-size: 0.9rem;">RSS Feed Preview • ${items.length} item${items.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div class="rss-feed-meta">
+                <span style="background: var(--accent-light); color: var(--accent-primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600;">LIVE PREVIEW</span>
+            </div>
+        `;
+        list.appendChild(feedHeader);
+        
+        items.forEach((item, index) => {
+            const article = document.createElement('article');
+            article.className = 'rss-feed-item';
+            
+            // Create article header with title and metadata
+            const header = document.createElement('header');
+            header.className = 'rss-item-header';
+            
+            const title = document.createElement('h4');
+            title.className = 'rss-item-title';
+            
+            if (item.link) {
+                const link = document.createElement('a');
+                link.href = item.link;
+                link.textContent = item.title || `Article ${index + 1}`;
+                link.target = '_blank';
+                link.style.textDecoration = 'none';
+                link.style.color = 'var(--text-primary)';
+                title.appendChild(link);
+            } else {
+                title.textContent = item.title || `Article ${index + 1}`;
+            }
+            
+            header.appendChild(title);
+            
+            // Add metadata row
+            const meta = document.createElement('div');
+            meta.className = 'rss-item-meta';
+            
+            const metaItems = [];
+            
+            if (item.image) {
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.title || 'image';
+                img.style.maxWidth = '64px';
+                img.style.marginRight = '8px';
+                article.prepend(img);
+            }
+            
+            if (item.author) {
+                metaItems.push(`👤 ${item.author}`);
+            }
+            
+            if (item.date) {
+                metaItems.push(`📅 ${new Date(item.date).toLocaleDateString()}`);
+            } else {
+                metaItems.push(`📅 ${new Date().toLocaleDateString()}`);
+            }
+            
+            metaItems.push(`🔗 ${item.link ? new URL(item.link).hostname : siteURL.replace(/^https?:\/\//, '').split('/')[0]}`);
+            
+            meta.innerHTML = metaItems.join(' • ');
+            header.appendChild(meta);
+            
+            article.appendChild(header);
+            
+            // Add content preview
+            if (item.content) {
+                const content = document.createElement('div');
+                content.className = 'rss-item-content';
+                
+                const contentText = item.content.length > 200 ? 
+                    item.content.substring(0, 200) + '...' : item.content;
+                
+                content.innerHTML = `
+                    <p>${contentText}</p>
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="rss-read-more">Read full article →</a>` : ''}
+                `;
+                
+                article.appendChild(content);
+            }
+            
+            // Add action footer
+            const footer = document.createElement('footer');
+            footer.className = 'rss-item-footer';
+            footer.innerHTML = `
+                <div class="rss-item-actions">
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="rss-action-btn">📖 Read</a>` : ''}
+                    <button type="button" class="rss-action-btn" onclick="shareArticle('${item.title}', '${item.link}')">📤 Share</button>
+                </div>
+            `;
+            
+            article.appendChild(footer);
+            list.appendChild(article);
+        });
+    }
+
+    function setButtonLoading(button, originalText, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.classList.add('btn-loading');
+            button.setAttribute('data-original-text', button.textContent);
+            button.textContent = originalText;
+        } else {
+            button.disabled = false;
+            button.classList.remove('btn-loading');
+            button.textContent = originalText;
+        }
+    }
+
+    function showAlert(message, type = 'info') {
+        showToast(message, type);
+    }
+
+    function showAlertNear(message, type = 'info', targetElement) {
+        // Remove existing contextual alerts
+        const existingAlerts = document.querySelectorAll('.alert-contextual');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Create new contextual alert
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-contextual`;
+        alert.textContent = message;
+        alert.style.marginBottom = '1rem';
+        
+        // Insert before the target element
+        targetElement.parentNode.insertBefore(alert, targetElement);
+        
+        // Auto-remove after 3 seconds (shorter since it's contextual)
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 3000);
+        
+        // Don't scroll - the user is already at the right location
+    }
+
+    function showToast(message, type = 'info') {
+        // Create toast container if it doesn't exist
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        
+        // Create toast
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        const icon = getToastIcon(type);
+        
+        toast.innerHTML = `
+            <span class="toast-icon">${icon}</span>
+            <span class="toast-content">${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Auto-remove after 4 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 4000);
+    }
+
+    function getToastIcon(type) {
+        switch (type) {
+            case 'success': return '🎉';
+            case 'error': return '❌';
+            case 'info': return 'ℹ️';
+            default: return 'ℹ️';
+        }
+    }
+
+    async function loadRSSXML() {
+        const xmlContent = document.getElementById('rss-xml-content');
+        if (xmlContent.textContent.trim()) return; // Already loaded
+        
+        xmlContent.textContent = 'Loading RSS XML...';
+        
+        try {
+            const response = await fetch(`/feeds/${feedID}.xml`);
+            const xmlText = await response.text();
+            
+            // Format XML for better readability
+            const formatted = formatXML(xmlText);
+            xmlContent.textContent = formatted;
+        } catch (err) {
+            xmlContent.textContent = 'Error loading RSS XML: ' + err.message;
+        }
+    }
+
+    function formatXML(xml) {
+        // Simple XML formatting
+        let formatted = '';
+        let indent = '';
+        const tab = '  ';
+        
+        xml.split(/>\s*</).forEach((node, index) => {
+            if (index > 0) formatted += '>\n';
+            
+            if (node.match(/^\/\w/)) {
+                indent = indent.substring(tab.length);
+            }
+            
+            formatted += indent + '<' + node;
+            
+            if (node.match(/^<?\w[^>]*[^\/]$/)) {
+                indent += tab;
+            }
+        });
+        
+        return formatted.substring(1);
+    }
+
+    function copyRSSXML() {
+        const xmlContent = document.getElementById('rss-xml-content').textContent;
+        navigator.clipboard.writeText(xmlContent).then(() => {
+            showAlert('📋 RSS XML copied to clipboard!', 'success');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = xmlContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showAlert('📋 RSS XML copied to clipboard!', 'success');
+        });
+    }
+
+    function shareArticle(title, url) {
+        if (navigator.share && url) {
+            navigator.share({
+                title: title,
+                url: url
+            }).catch(() => {
+                // Fallback to copying URL
+                copyToClipboard(url);
+            });
+        } else if (url) {
+            copyToClipboard(url);
+        } else {
+            showAlert('No URL available to share', 'info');
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showAlert('📋 URL copied to clipboard!', 'success');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showAlert('📋 URL copied to clipboard!', 'success');
+        });
+    }
+
+    // Make functions globally available
+    window.shareArticle = shareArticle;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // auto load preview on page load
+        document.getElementById('preview-btn').click();
+    });
+    </script>
+</body>
+</html> 

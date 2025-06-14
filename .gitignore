@@ -1,0 +1,19 @@
+# Environment variables
+.env
+
+# Python bytecode & caches
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+
+# Local databases / generated artifacts
+*.db
+
+# IDE / Editor folders
+.idea/
+.vscode/
+
+# macOS metadata
+.DS_Store 

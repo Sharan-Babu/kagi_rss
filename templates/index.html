@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site2RSS - Convert Any Website to RSS Feed</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1 class="logo">📡 Site2RSS</h1>
+            <p class="subtitle">Transform any website into a personalized RSS feed</p>
+        </header>
+
+        <!-- How it Works Card -->
+        <div class="card tips-section">
+            <h3 style="color: var(--text-muted); font-size: 1.25rem; font-weight: 500;">How it Works</h3>
+            <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1rem; font-weight: 500;">1. 🌐 Enter Website URL</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Paste any website URL you want to monitor</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1rem; font-weight: 500;">2. 🎯 Auto-Detect Content</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Our AI automatically identifies feed content</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1rem; font-weight: 500;">3. 📡 Get RSS Feed</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Use the generated RSS URL in any feed reader</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Actions Card -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="mb-0">RSS Feeds Dashboard</h2>
+                <a href="/feeds/new" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); border: none; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3); font-weight: 600;">
+                    ✨ Create New Feed
+                </a>
+            </div>
+            <p class="mb-0">Manage your custom RSS feeds and monitor your favorite websites</p>
+        </div>
+
+        <!-- Feeds List Card -->
+        <div class="card">
+            <h3>Your Active Feeds</h3>
+            {% if feeds %}
+                <ul class="feed-list">
+                    {% for feed in feeds %}
+                        <li class="feed-item">
+                            <a href="/feeds/{{ feed.id }}" class="feed-name">
+                                🔗 {{ feed.name }}
+                            </a>
+                            <div class="feed-actions">
+                                <a href="/feeds/{{ feed.id }}.xml" target="_blank" class="feed-link">
+                                    📡 View RSS Feed
+                                </a>
+                                <a href="/feeds/{{ feed.id }}" class="feed-link">
+                                    ⚙️ Configure
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No RSS feeds yet</h3>
+                    <p>Get started by creating your first RSS feed from any website</p>
+                    <a href="/feeds/new" class="btn btn-primary mt-2" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); border: none; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3); font-weight: 600;">
+                        🚀 Create Your First Feed
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+
+
+
+    </div>
+</body>
+</html> 
