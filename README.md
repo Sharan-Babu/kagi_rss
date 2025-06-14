@@ -56,7 +56,7 @@ Go to `http://127.0.0.1:5000`.
 
 ## 🤖 LLM Usage
 
-Gemini 2.0 Flash is used twice:
+Gemini 2.5 Flash is used twice:
 
 1. **List-page auto detection**  
    • Prompt returns full selector mapping + `result` flag.  
